@@ -55,11 +55,14 @@ export const transcribeSpeech = async (
       if (recordingUri && dataUrl) {
         const rootOrigin =
           Platform.OS === "android"
-            ? "10.0.2.2"
+            ? "172.18.160.1"
             : Device.isDevice
             ? process.env.LOCAL_DEV_IP || "localhost"
             : "localhost";
         const serverUrl = `http://${rootOrigin}:4000`;
+
+        console.log("serverUrl", serverUrl);
+        console.log("body", { audioUrl: dataUrl, config: audioConfig });
         const serverResponse = await fetch(`${serverUrl}/speech-to-text`, {
           method: "POST",
           headers: {
@@ -68,7 +71,10 @@ export const transcribeSpeech = async (
           body: JSON.stringify({ audioUrl: dataUrl, config: audioConfig }),
         })
           .then((res) => res.json())
-          .catch((e: Error) => console.error(e));
+          .catch((e: Error) =>
+            console.error("error during post to /speech-to-text", e)
+          );
+        console.log("serverResponse", serverResponse);
 
         const results = serverResponse?.results;
         if (results) {

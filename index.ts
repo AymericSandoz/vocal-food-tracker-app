@@ -12,8 +12,14 @@ app.use(express.json({ limit: "50mb" }));
 app.use(cors());
 
 app.post("/speech-to-text", (req: Request, res: Response) => {
+  console.log("POST request received at /speech-to-text");
   speechToText(req, res);
 });
+
+app.post("/test", (req, res) => {
+  res.send("POST request received on /test");
+});
+
 
 app.get("/", (req, res) => {
   res.send("The Speech-to-Text API is up and running!");

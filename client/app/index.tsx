@@ -51,10 +51,13 @@ export default function HomeScreen() {
   };
 
   const stopRecording = async () => {
+    console.log("audioRecordingRef", audioRecordingRef);
     setIsRecording(false);
     setIsTranscribing(true);
+    console.log("audioRecordingRef", audioRecordingRef);
     try {
       const speechTranscript = await transcribeSpeech(audioRecordingRef);
+      // const speechTranscript = "This is a test transcription";
       setTranscribedSpeech(speechTranscript || "");
     } catch (e) {
       console.error(e);

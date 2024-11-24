@@ -70,7 +70,7 @@ export const recordSpeech = async (
       return;
     }
   } catch (err) {
-    console.error("Failed to start recording", err);
+    console.error("!!!!!!!Failed to start recording", err);
     return;
   }
 };
