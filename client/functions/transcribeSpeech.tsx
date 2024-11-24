@@ -55,14 +55,13 @@ export const transcribeSpeech = async (
       if (recordingUri && dataUrl) {
         const rootOrigin =
           Platform.OS === "android"
-            ? "172.18.160.1"
+            ? "192.168.114.115" // METTRE SON IP ICI ou 10.0.2.2 si émulateur(à confirmer)
             : Device.isDevice
             ? process.env.LOCAL_DEV_IP || "localhost"
             : "localhost";
         const serverUrl = `http://${rootOrigin}:4000`;
 
         console.log("serverUrl", serverUrl);
-        console.log("body", { audioUrl: dataUrl, config: audioConfig });
         const serverResponse = await fetch(`${serverUrl}/speech-to-text`, {
           method: "POST",
           headers: {
