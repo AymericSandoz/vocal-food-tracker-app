@@ -43,7 +43,10 @@ console.log("transcriptionData", transcriptionData);
 
     console.log("mealAnalysis", mealAnalysis);
 
-    res.json(mealAnalysis);
+    // je veux renvoyer le un objet meal analyse avec transcription et la mealanalysis
+    res.json({transcriptionData, mealAnalysis});
+    console.log({transcriptionData, mealAnalysis});
+
 });
 
 

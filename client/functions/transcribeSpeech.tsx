@@ -29,7 +29,7 @@ export const transcribeSpeech = async (
 
         const rootOrigin =
           Platform.OS === "android"
-            ? "192.168.114.115" // METTRE SON IP ICI ou 10.0.2.2 si émulateur(à confirmer)
+            ? "192.168.121.115" // METTRE SON IP ICI ou 10.0.2.2 si émulateur(à confirmer)
             : Device.isDevice
             ? process.env.LOCAL_DEV_IP || "localhost"
             : "localhost";
@@ -51,9 +51,9 @@ export const transcribeSpeech = async (
 
         console.log("serverResponse", serverResponse);
 
-        const transcription = serverResponse?.text;
-        if (transcription) {
-          return transcription;
+        const mealAnalysis = serverResponse;
+        if (mealAnalysis) {
+          return mealAnalysis;
         } else {
           console.error("No results from server");
         }

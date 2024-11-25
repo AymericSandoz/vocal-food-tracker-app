@@ -21,6 +21,7 @@ export default function HomeScreen() {
   const isWebFocused = useWebFocus();
   const audioRecordingRef = useRef(new Audio.Recording());
   const webAudioPermissionsRef = useRef<MediaStream | null>(null);
+  const [mealAnalysis, setMealAnalysis] = useState({});
 
   useEffect(() => {
     if (isWebFocused) {
@@ -54,9 +55,12 @@ export default function HomeScreen() {
     setIsRecording(false);
     setIsTranscribing(true);
     try {
-      const speechTranscript = await transcribeSpeech(audioRecordingRef);
+      // const speechTranscript = await transcribeSpeech(audioRecordingRef);
       // const speechTranscript = "This is a test transcription";
-      setTranscribedSpeech(speechTranscript || "");
+      const result = await transcribeSpeech(audioRecordingRef);
+
+      setTranscribedSpeech(result.transcriptionData.text || "");
+      setMealAnalysis(result.mealAnalysis || {});
     } catch (e) {
       console.error(e);
     } finally {
@@ -99,12 +103,30 @@ export default function HomeScreen() {
               <FontAwesome name="microphone" size={40} color="white" />
             )}
           </TouchableOpacity>
+
+          {mealAnalysis && Object.keys(mealAnalysis).length > 0 && (
+            <View style={styles.mealAnalysisContainer}>
+              <Text style={styles.mealAnalysisTitle}>Meal Analysis</Text>
+              <Text>Meal Time: {mealAnalysis.meal_time || "N/A"}</Text>
+              <Text>Total Calories: {mealAnalysis.total_calories}</Text>
+              <Text>Foods:</Text>
+              {mealAnalysis.foods.map((food, index) => (
+                <View key={index} style={styles.foodItem}>
+                  <Text>Item: {food.item}</Text>
+                  <Text>Quantity: {food.quantity}</Text>
+                  <Text>Calories per Portion: {food.calories}</Text>
+                  <Text>
+                    Estimated Total Calories: {food.estimated_total_calories}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   mainScrollContainer: {
     padding: 20,
@@ -151,5 +173,20 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: "center",
     justifyContent: "center",
+  },
+  mealAnalysisContainer: {
+    marginTop: 20,
+    padding: 20,
+    backgroundColor: "rgb(240,240,240)",
+    borderRadius: 5,
+    width: "100%",
+  },
+  mealAnalysisTitle: {
+    fontSize: 25,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  foodItem: {
+    marginBottom: 10,
   },
 });
