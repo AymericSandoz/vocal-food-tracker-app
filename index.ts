@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import { speechToText } from "./functions/speechToText";
+import { textToMeal } from "./functions/textToMeal";
 import cors from "cors";
 import "dotenv/config";
 import multer from "multer";
@@ -30,11 +31,21 @@ const upload = multer({ storage });
 
 
 
-app.post("/speech-to-text", upload.single("audio"), (req: Request, res: Response) => {
-  console.log("POST request received at /speech-to-text");
-  console.log("File received:", req.file);
-  speechToText(req, res);
+app.post("/speech-to-text", upload.single("audio"), async (req: Request, res: Response) => {
+    console.log("POST request received at /speech-to-text");
+
+    // Appel de speechToText pour obtenir la transcription
+    const transcriptionData = await speechToText(req);
+
+console.log("transcriptionData", transcriptionData);
+    // Appel de textToMeal pour analyser la transcription
+    const mealAnalysis = await textToMeal(transcriptionData);
+
+    console.log("mealAnalysis", mealAnalysis);
+
+    res.json(mealAnalysis);
 });
+
 
 app.get("/", (req, res) => {
   res.send("The Speech-to-Text API is up and running!");

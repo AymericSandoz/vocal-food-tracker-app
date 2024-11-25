@@ -51,11 +51,9 @@ export const transcribeSpeech = async (
 
         console.log("serverResponse", serverResponse);
 
-        const results = serverResponse?.results;
-        if (results) {
-          const transcript = results?.[0].alternatives?.[0].transcript;
-          if (transcript) return transcript;
-          else console.error("No transcript found");
+        const transcription = serverResponse?.text;
+        if (transcription) {
+          return transcription;
         } else {
           console.error("No results from server");
         }

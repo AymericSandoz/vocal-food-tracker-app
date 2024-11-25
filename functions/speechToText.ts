@@ -41,12 +41,11 @@
 import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
-
-export const speechToText = async (req, res) => {
+export const speechToText = async (req) => {
   try {
     const formData = new FormData();
-    formData.append("file", fs.createReadStream(req.file.path)); // Charge le fichier
-    formData.append("model", "whisper-1"); // Modèle Whisper
+    formData.append("file", fs.createReadStream(req.file.path));
+    formData.append("model", "whisper-1");
 
     const response = await axios.post(
       "https://api.openai.com/v1/audio/transcriptions",
@@ -54,16 +53,18 @@ export const speechToText = async (req, res) => {
       {
         headers: {
           Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          ...formData.getHeaders(), // Nécessaire pour définir les bons headers multipart
+          ...formData.getHeaders(),
         },
       }
     );
 
     console.log("Réponse de OpenAI:", response.data);
 
-    res.json(response.data);
+    // Retourne la transcription
+    return response.data;
   } catch (error) {
     console.error("Erreur lors de l'appel à OpenAI:", error.response?.data || error.message);
-    res.status(500).send("Erreur lors de la transcription");
+    throw new Error("Erreur lors de la transcription");
   }
 };
+
