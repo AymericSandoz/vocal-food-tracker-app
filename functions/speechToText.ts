@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 export const speechToText = async (req: Request, res: Response) => {
   try {
     // Simuler une transcription pour l'exemple
+    console.log(req.body);
     const transcript = "This is a test transcription";
 
     // Structurer la réponse pour qu'elle soit interprétable par le front-end

@@ -29,13 +29,21 @@ export const recordSpeech = async (
 
         const recordingOptions = {
           ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
+          // android: {
+          //   extension: ".amr",
+          //   outputFormat: Audio.AndroidOutputFormat.AMR_WB,
+          //   audioEncoder: Audio.AndroidAudioEncoder.AMR_WB,
+          //   sampleRate: 16000,
+          //   numberOfChannels: 1,
+          //   bitRate: 128000,
+          // },
           android: {
-            extension: ".amr",
-            outputFormat: Audio.AndroidOutputFormat.AMR_WB,
-            audioEncoder: Audio.AndroidAudioEncoder.AMR_WB,
-            sampleRate: 16000,
-            numberOfChannels: 1,
-            bitRate: 128000,
+            extension: ".m4a", // Format compatible
+            outputFormat: Audio.AndroidOutputFormat.MPEG_4, // Format pris en charge
+            audioEncoder: Audio.AndroidAudioEncoder.AAC, // Encodeur AAC
+            sampleRate: 44100, // Taux d'échantillonnage standard
+            numberOfChannels: 1, // Mono
+            bitRate: 128000, // Qualité audio correcte
           },
           ios: {
             extension: ".wav",
