@@ -13,46 +13,20 @@ export const transcribeSpeech = async (
       allowsRecordingIOS: false,
       playsInSilentModeIOS: false,
     });
+
     const isPrepared = audioRecordingRef?.current?._canRecord;
     if (isPrepared) {
       await audioRecordingRef?.current?.stopAndUnloadAsync();
-
       const recordingUri = audioRecordingRef?.current?.getURI() || "";
-      let base64Uri = "";
 
-      if (Platform.OS === "web") {
-        const blob = await fetch(recordingUri).then((res) => res.blob());
-        const foundBase64 = (await readBlobAsBase64(blob)) as string;
-        // Example: data:audio/wav;base64,asdjfioasjdfoaipsjdf
-        const removedPrefixBase64 = foundBase64.split("base64,")[1];
-        base64Uri = removedPrefixBase64;
-      } else {
-        base64Uri = await FileSystem.readAsStringAsync(recordingUri, {
-          encoding: FileSystem.EncodingType.Base64,
+      if (recordingUri) {
+        const formData = new FormData() as any;
+        formData.append("audio", {
+          uri: recordingUri,
+          type: "audio/m4a", // Ou un autre type en fonction du format
+          name: "audio.m4a", // Le nom du fichier
         });
-      }
 
-      const dataUrl = base64Uri;
-
-      audioRecordingRef.current = new Audio.Recording();
-
-      const audioConfig = {
-        encoding:
-          Platform.OS === "android"
-            ? "AAC"
-            : Platform.OS === "web"
-            ? "WEBM_OPUS"
-            : "LINEAR16",
-        sampleRateHertz:
-          Platform.OS === "android"
-            ? 44100
-            : Platform.OS === "web"
-            ? 48000
-            : 41000,
-        languageCode: "en-US",
-      };
-
-      if (recordingUri && dataUrl) {
         const rootOrigin =
           Platform.OS === "android"
             ? "192.168.114.115" // METTRE SON IP ICI ou 10.0.2.2 si émulateur(à confirmer)
@@ -61,36 +35,37 @@ export const transcribeSpeech = async (
             : "localhost";
         const serverUrl = `http://${rootOrigin}:4000`;
 
-        console.log("serverUrl", serverUrl);
+        console.log("formData", formData);
+
         const serverResponse = await fetch(`${serverUrl}/speech-to-text`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
           },
-          body: JSON.stringify({ audioUrl: dataUrl, config: audioConfig }),
+          body: formData,
         })
           .then((res) => res.json())
           .catch((e: Error) =>
             console.error("error during post to /speech-to-text", e)
           );
+
         console.log("serverResponse", serverResponse);
 
         const results = serverResponse?.results;
         if (results) {
           const transcript = results?.[0].alternatives?.[0].transcript;
-          if (!transcript) return undefined;
-          return transcript;
+          if (transcript) return transcript;
+          else console.error("No transcript found");
         } else {
-          console.error("No transcript found");
-          return undefined;
+          console.error("No results from server");
         }
+      } else {
+        console.error("Recording URI is not available");
       }
     } else {
       console.error("Recording must be prepared prior to unloading");
-      return undefined;
     }
   } catch (e) {
     console.error("Failed to transcribe speech!", e);
-    return undefined;
   }
 };
