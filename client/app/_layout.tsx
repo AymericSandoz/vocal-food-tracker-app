@@ -4,10 +4,13 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, Redirect } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+import { Text } from "react-native";
 import "react-native-reanimated";
+import { isAuthenticated } from "@/functions/auth/token";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 
@@ -19,8 +22,16 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
+    const checkAuth = async () => {
+      const authenticated = await isAuthenticated();
+      console.log("authenticated", authenticated);
+      setIsLoggedIn(authenticated);
+    };
+
+    checkAuth();
     if (loaded) {
       SplashScreen.hideAsync();
     }
@@ -30,11 +41,16 @@ export default function RootLayout() {
     return null;
   }
 
+  if (!isLoggedIn) {
+    return <Redirect href="/login" />;
+  }
+
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+        <Stack.Screen name="index" options={{ headerShown: false }} /> //
+        Remplacez cela par l'écran que vous souhaitez afficher si l'utilisateur
+        est connecté
       </Stack>
     </ThemeProvider>
   );
