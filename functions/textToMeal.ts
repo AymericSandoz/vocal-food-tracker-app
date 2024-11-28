@@ -14,6 +14,7 @@ export const textToMeal = async (req) => {
             Retourne un JSON avec :
             - Heure du repas ("meal_time"). Si pas d'heure précisée, mettre "null".
             - Total des calories ("total_calories")
+            - Nom du repas ("meal_name"). Par exemple, "déjeuner", "dîner", "collation", etc. Mettre "null" si tu ne peux pas le déterminer.
             - Liste des aliments avec :
               - nom ("item"),
               - quantité estimée ("quantity"),
@@ -35,9 +36,7 @@ export const textToMeal = async (req) => {
       }
     );
 
-    console.log("Réponse de OpenAI:", response.data);
     const mealAnalysis = response.data.choices[0].message.content;
-    console.log("Analyse du repas :", mealAnalysis);
 
     // Retourne la réponse (qui est du texte JSON parsable)
     return JSON.parse(mealAnalysis);

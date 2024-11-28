@@ -55,8 +55,6 @@ export default function HomeScreen() {
     setIsRecording(false);
     setIsTranscribing(true);
     try {
-      // const speechTranscript = await transcribeSpeech(audioRecordingRef);
-      // const speechTranscript = "This is a test transcription";
       const result = await transcribeSpeech(audioRecordingRef);
 
       setTranscribedSpeech(result.transcriptionData.text || "");

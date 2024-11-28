@@ -18,7 +18,6 @@ export const speechToText = async (req) => {
       }
     );
 
-    console.log("Réponse de OpenAI:", response.data);
     return response.data;
   } catch (error) {
     console.error("Erreur lors de l'appel à OpenAI:", error.response?.data || error.message);

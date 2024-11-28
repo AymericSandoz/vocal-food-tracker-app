@@ -36,8 +36,9 @@ export const transcribeSpeech = async (
         const serverUrl = `http://${rootOrigin}:4000`;
 
         console.log("formData", formData);
+        console.log("serverUrl", serverUrl);
 
-        const serverResponse = await fetch(`${serverUrl}/speech-to-text`, {
+        const serverResponse = await fetch(`${serverUrl}/speech-to-meal/`, {
           method: "POST",
           headers: {
             "Content-Type": "multipart/form-data",
@@ -46,7 +47,7 @@ export const transcribeSpeech = async (
         })
           .then((res) => res.json())
           .catch((e: Error) =>
-            console.error("error during post to /speech-to-text", e)
+            console.error("error during post to /speech-to-meal", e)
           );
 
         console.log("serverResponse", serverResponse);
