@@ -72,7 +72,7 @@ export default function HomeScreen() {
     <SafeAreaView>
       <ScrollView style={styles.mainScrollContainer}>
         <View style={styles.mainInnerContainer}>
-          <Text style={styles.title}>Welcome to the Speech-to-Text App</Text>
+          <Text style={styles.title}>Je vais calculer tes calories !</Text>
           <View style={styles.transcriptionContainer}>
             {isTranscribing ? (
               <ActivityIndicator size="small" color="#000" />
@@ -84,26 +84,10 @@ export default function HomeScreen() {
                 }}
               >
                 {transcribedSpeech ||
-                  "Your transcribed text will be shown here"}
+                  "Ce que tu dis apparaîtra ici après avoir enregistré."}
               </Text>
             )}
           </View>
-          <TouchableOpacity
-            style={{
-              ...styles.microphoneButton,
-              opacity: isRecording || isTranscribing ? 0.5 : 1,
-            }}
-            onPressIn={startRecording}
-            onPressOut={stopRecording}
-            disabled={isRecording || isTranscribing}
-          >
-            {isRecording ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <FontAwesome name="microphone" size={40} color="white" />
-            )}
-          </TouchableOpacity>
-
           {mealAnalysis && Object.keys(mealAnalysis).length > 0 && (
             <View style={styles.mealAnalysisContainer}>
               <Text style={styles.mealAnalysisTitle}>Meal Analysis</Text>
@@ -122,6 +106,21 @@ export default function HomeScreen() {
               ))}
             </View>
           )}
+          <TouchableOpacity
+            style={{
+              ...styles.microphoneButton,
+              opacity: isRecording || isTranscribing ? 0.5 : 1,
+            }}
+            onPressIn={startRecording}
+            onPressOut={stopRecording}
+            disabled={isRecording || isTranscribing}
+          >
+            {isRecording ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <FontAwesome name="microphone" size={40} color="white" />
+            )}
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>

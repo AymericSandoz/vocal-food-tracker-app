@@ -5,7 +5,9 @@ import cors from "cors";
 import "dotenv/config";
 import multer from "multer";
 import path from "path";
-
+const userRoutes = require("./routes/user");
+const mealRoutes = require("./routes/meal");
+const { createMeal } = require("./controllers/meal");
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
 
 const app = express();
@@ -29,23 +31,16 @@ const storage = multer.diskStorage({
 // Middleware multer
 const upload = multer({ storage });
 
-
+app.use("/user", userRoutes);
+app.use("/meal", mealRoutes);
 
 app.post("/speech-to-text", upload.single("audio"), async (req: Request, res: Response) => {
-    console.log("POST request received at /speech-to-text");
 
-    // Appel de speechToText pour obtenir la transcription
     const transcriptionData = await speechToText(req);
-
-console.log("transcriptionData", transcriptionData);
-    // Appel de textToMeal pour analyser la transcription
     const mealAnalysis = await textToMeal(transcriptionData);
-
-    console.log("mealAnalysis", mealAnalysis);
-
-    // je veux renvoyer le un objet meal analyse avec transcription et la mealanalysis
-    res.json({transcriptionData, mealAnalysis});
-    console.log({transcriptionData, mealAnalysis});
+    let data = {transcriptionData, mealAnalysis};
+    createMeal(data);
+    res.json(data);
 
 });
 
