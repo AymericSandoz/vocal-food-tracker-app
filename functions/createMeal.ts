@@ -1,4 +1,5 @@
 const Meal = require("../models/meal");
+import mongoose from "mongoose";
 
 export const createMeal = async (data) => {
   const { transcriptionData, mealAnalysis } = data;
@@ -8,14 +9,15 @@ export const createMeal = async (data) => {
   try {
     // Créer un nouvel objet Meal avec les informations fournies
     const newMeal = new Meal({
-      meal_time: mealAnalysis.meal_time || new Date().toISOString(),
-      total_calories: mealAnalysis.total_calories,
-      meal_name: mealAnalysis.meal_name,
+      userId: 'test', // Remplacer par l'ID de l'utilisateur authentifié
+      time: mealAnalysis.meal_time || new Date().toISOString(),
+      totalCalories: mealAnalysis.total_calories,
+      name: mealAnalysis.meal_name,
       foods: mealAnalysis.foods.map(food => ({
         item: food.item,
-        quantity: food.quantity,
-        calories: food.calories,
-        estimated_total_calories: food.estimated_total_calories
+        quantity: String(food.quantity),
+        calories: String(food.calories),
+        estimatedTotalCalories: String(food.estimated_total_calories)
       })),
       transcription: transcriptionData.text // Ajouter la transcription
     });
@@ -27,6 +29,6 @@ export const createMeal = async (data) => {
     return newMeal;
   } catch (error) {
     console.error("Error saving meal:", error);
-    throw new Error("Could not save meal. Please try again.");
+
   }
 };
