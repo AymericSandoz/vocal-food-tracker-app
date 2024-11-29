@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { Platform } from "react-native";
 import * as Device from "expo-device";
+import { router } from "expo-router";
 
 const rootOrigin =
   Platform.OS === "android"
@@ -36,7 +37,7 @@ const SignUpScreen = ({ navigation }) => {
       }
 
       alert("Inscription réussie !");
-      navigation.navigate("Login"); // Redirige vers l'écran de connexion
+      // router.push("/sign-up")
     } catch (err) {
       setError(err.message || "Erreur lors de l'inscription");
     }
@@ -65,6 +66,10 @@ const SignUpScreen = ({ navigation }) => {
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <Button title="S'inscrire" onPress={handleSignUp} />
+      <Button
+        title="Déjà inscrit ? Se connecter"
+        onPress={() => router.push("/sign-in")}
+      />
     </View>
   );
 };
