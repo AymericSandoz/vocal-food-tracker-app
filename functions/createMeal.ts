@@ -1,5 +1,4 @@
 const Meal = require("../models/meal");
-import mongoose from "mongoose";
 
 export const createMeal = async (data) => {
   const { transcriptionData, mealAnalysis } = data;

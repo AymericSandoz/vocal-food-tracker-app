@@ -1,62 +1,86 @@
-exports.signup = (req, res, next) => {
-  const signUpErrors = (errors) => {
-    const error = { pseudo: "", email: "" };
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import User from "../models/user";
 
-    if (errors.message.includes("pseudo"))
-      error.pseudo = "Pseudo incorrect ou déjà utilisé";
-
-    if (errors.message.includes("email")) error.email = "Email invalide";
-
-    return error;
-  };
-
-  bcrypt
-    .hash(req.body.password, 10)
-    .then((hash) => {
-      const user = new User({
-        email: req.body.email,
-        password: hash,
-        pseudo: req.body.pseudo,
-        name: req.body.name,
-        club: req.body.club,
-      });
-      user
-        .save()
-        .then(() => res.status(200).json({ message: "Utilisateur créé !" }))
-        .catch((error) => res.status(201).json(signUpErrors(error)));
-    })
-    .catch((error) => res.status(500).json({ error }));
+// Gestion des erreurs de création d'utilisateur
+const signUpErrors = (error) => {
+  let error_message;
+  if (error.message.includes("duplicate key error collection")) {
+    error_message = "Cet email est déjà utilisé";
+  } else if (error.message.includes("email")) {
+    error_message = "Email invalide";
+  } else {
+    error_message = "Erreur lors de l'inscription";
+  }
+  return error_message;
 };
 
-exports.login = (req, res, next) => {
-  User.findOne({ email: req.body.email }, function (err, user) {
-    if (err) {
-      return res.status(500).json({ err });
+// Inscription
+exports.signup = async (req, res) => {
+  try {
+    const { email, password, ...rest } = req.body;
+
+    // Hashage du mot de passe
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Création de l'utilisateur avec les champs dynamiques
+    const user = new User({
+      email,
+      password: hashedPassword,
+      ...rest, // Inclut les autres champs restants
+    });
+
+    // Sauvegarde de l'utilisateur
+    await user.save();
+
+    const token = jwt.sign({ userId: user._id }, process.env.KEY_JWT, {
+      expiresIn: "150d",
+    });
+
+    res.status(201).json({
+      message: "Utilisateur créé !",
+    });
+  } catch (error) {
+    const formattedErrors = signUpErrors(error);
+    res.status(401).json({
+      message: formattedErrors,
+    });
+  }
+};
+
+// Connexion
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Recherche de l'utilisateur par email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(401) // 401 Unauthorized pour une tentative de connexion invalide
+        .json({ error: "Mot de passe ou identifiant incorrect !" });
     }
 
-    if (user) {
-      bcrypt
-        .compare(req.body.password, user.password)
-        .then((valid) => {
-          if (!valid) {
-            return res.status(200).json({
-              error: "Mot de passe ou identifiant incorrect !",
-            });
-          } else {
-            res.status(200).json({
-              userId: user._id,
-              token: jwt.sign({ userId: user._id }, process.env.KEY_JWT, {
-                expiresIn: "150d",
-              }),
-              pseudo: user.pseudo,
-            });
-          }
-        })
-        .catch((error) => console.log(error));
-    } else {
-      res.status(200).json({
-        error: "Mot de passe ou identifiant incorrect !",
-      });
+    // Vérification du mot de passe
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res
+        .status(401)
+        .json({ error: "Mot de passe ou identifiant incorrect !" });
     }
-  });
+
+    // Génération du token JWT
+    const token = jwt.sign({ userId: user._id }, process.env.KEY_JWT, {
+      expiresIn: "150d",
+    });
+
+    res.status(200).json({
+      userId: user._id,
+      token,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Erreur serveur, veuillez réessayer." });
+  }
 };

@@ -1,5 +1,4 @@
-const mongoose = require("mongoose");
-
+import mongoose from "mongoose";
 const foodSchema = new mongoose.Schema({
   item: { type: String, required: true }, // Nom de l'aliment
   quantity: { type: String, required: true }, // Quantité estimée

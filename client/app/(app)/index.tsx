@@ -13,6 +13,7 @@ import { transcribeSpeech } from "@/functions/transcribeSpeech";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { recordSpeech } from "@/functions/recordSpeech";
 import useWebFocus from "@/hooks/useWebFocus";
+import { useSession } from "@/functions/auth/ctx";
 
 export default function HomeScreen() {
   const [transcribedSpeech, setTranscribedSpeech] = useState("");
@@ -22,6 +23,7 @@ export default function HomeScreen() {
   const audioRecordingRef = useRef(new Audio.Recording());
   const webAudioPermissionsRef = useRef<MediaStream | null>(null);
   const [mealAnalysis, setMealAnalysis] = useState({});
+  const { signOut } = useSession();
 
   useEffect(() => {
     if (isWebFocused) {
@@ -70,6 +72,13 @@ export default function HomeScreen() {
     <SafeAreaView>
       <ScrollView style={styles.mainScrollContainer}>
         <View style={styles.mainInnerContainer}>
+          <Text
+            onPress={() => {
+              signOut();
+            }}
+          >
+            Sign Out
+          </Text>
           <Text style={styles.title}>Je vais calculer tes calories !</Text>
           <View style={styles.transcriptionContainer}>
             {isTranscribing ? (

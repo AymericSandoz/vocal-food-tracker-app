@@ -1,4 +1,3 @@
-import { Request, Response } from "express";
 import axios from "axios";
 
 export const textToMeal = async (req) => {

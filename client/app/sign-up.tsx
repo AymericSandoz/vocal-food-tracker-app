@@ -3,24 +3,29 @@ import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { Platform } from "react-native";
 import * as Device from "expo-device";
 import { router } from "expo-router";
+import { useSession } from "../functions/auth/ctx";
 
 const rootOrigin =
   Platform.OS === "android"
-    ? "192.168.121.115" // METTRE SON IP ICI ou 10.0.2.2 si émulateur(à confirmer)
+    ? "192.168.140.115" // METTRE SON IP ICI ou 10.0.2.2 si émulateur(à confirmer)
     : Device.isDevice
     ? process.env.LOCAL_DEV_IP || "localhost"
     : "localhost";
 const serverUrl = `http://${rootOrigin}:4000`;
 
+console.log("serverUrl:", serverUrl);
+
 const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [error, setError] = useState("");
+  const { signIn } = useSession();
 
   const handleSignUp = async () => {
     try {
-      const response = await fetch(`http://${serverUrl}/signup`, {
+      const response = await fetch(`${serverUrl}/user/register/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -28,18 +33,21 @@ const SignUpScreen = ({ navigation }) => {
         body: JSON.stringify({
           email,
           password,
-          name,
+          firstName,
+          lastName,
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(await response.text());
+      if (response.ok) {
+        console.log("about to sign in");
+        signIn(email, password);
+        router.replace("/");
+      } else {
+        const responseData = await response.json();
+        setError(responseData.message || "Erreur lors de l'inscription");
       }
-
-      alert("Inscription réussie !");
-      // router.push("/sign-up")
     } catch (err) {
-      setError(err.message || "Erreur lors de l'inscription");
+      setError("Erreur lors de l'inscription");
     }
   };
 
@@ -48,8 +56,14 @@ const SignUpScreen = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Nom"
-        value={name}
-        onChangeText={setName}
+        value={lastName}
+        onChangeText={setLastName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Prénom"
+        value={firstName}
+        onChangeText={setFirstName}
       />
       <TextInput
         style={styles.input}

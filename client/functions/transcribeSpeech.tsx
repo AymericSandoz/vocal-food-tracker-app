@@ -3,7 +3,6 @@ import { MutableRefObject } from "react";
 import * as FileSystem from "expo-file-system";
 import { Platform } from "react-native";
 import * as Device from "expo-device";
-import { readBlobAsBase64 } from "./readBlobAsBase64";
 
 export const transcribeSpeech = async (
   audioRecordingRef: MutableRefObject<Audio.Recording>
@@ -29,7 +28,7 @@ export const transcribeSpeech = async (
 
         const rootOrigin =
           Platform.OS === "android"
-            ? "192.168.121.115" // METTRE SON IP ICI ou 10.0.2.2 si émulateur(à confirmer)
+            ? "192.168.140.115" // METTRE SON IP ICI ou 10.0.2.2 si émulateur(à confirmer)
             : Device.isDevice
             ? process.env.LOCAL_DEV_IP || "localhost"
             : "localhost";
