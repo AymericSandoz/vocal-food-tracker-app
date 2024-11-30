@@ -2,8 +2,6 @@ const Sport = require('../models/sport');
 
 export const createSport = async (data) => {
     const { transcriptionData, sportAnalysis } = data;
-    console.log('createSport:', data);
-    console.log('sport:', sportAnalysis.sport);
     try {
         // Créer un nouvel objet Sport avec les informations fournies
         const newSport = new Sport({
@@ -16,7 +14,6 @@ export const createSport = async (data) => {
         });
         // Enregistrer le nouvel objet Sport dans la base de données
         await newSport.save();
-        console.log('Sport saved successfully:', newSport);
         return newSport;
     } catch (error) {
         console.error('Error saving sport:', error);

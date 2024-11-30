@@ -14,16 +14,18 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { recordSpeech } from "@/functions/recordSpeech";
 import useWebFocus from "@/hooks/useWebFocus";
 import { useSession } from "@/functions/auth/ctx";
+import { speechTo } from "@/functions/speechTo";
+import { textTo } from "@/functions/textTo";
+import { MealCard } from "@/components/resultAnalysis/meal";
 
 export default function HomeScreen() {
-  const [transcribedSpeech, setTranscribedSpeech] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const isWebFocused = useWebFocus();
   const audioRecordingRef = useRef(new Audio.Recording());
   const webAudioPermissionsRef = useRef<MediaStream | null>(null);
   const [mealAnalysis, setMealAnalysis] = useState({});
-  const { signOut } = useSession();
+  const { signOut, session } = useSession();
 
   useEffect(() => {
     if (isWebFocused) {
@@ -56,11 +58,12 @@ export default function HomeScreen() {
   const stopRecording = async () => {
     setIsRecording(false);
     setIsTranscribing(true);
-    try {
-      const result = await transcribeSpeech(audioRecordingRef);
 
-      setTranscribedSpeech(result.transcriptionData.text || "");
-      setMealAnalysis(result.mealAnalysis || {});
+    console.log("session", session);
+    try {
+      const result = await transcribeSpeech(audioRecordingRef, session);
+
+      setMealAnalysis(result || {});
     } catch (e) {
       console.error(e);
     } finally {
@@ -80,38 +83,14 @@ export default function HomeScreen() {
             Sign Out
           </Text>
           <Text style={styles.title}>Je vais calculer tes calories !</Text>
-          <View style={styles.transcriptionContainer}>
-            {isTranscribing ? (
-              <ActivityIndicator size="small" color="#000" />
-            ) : (
-              <Text
-                style={{
-                  ...styles.transcribedText,
-                  color: transcribedSpeech ? "#000" : "rgb(150,150,150)",
-                }}
-              >
-                {transcribedSpeech ||
-                  "Ce que tu dis apparaîtra ici après avoir enregistré."}
-              </Text>
-            )}
-          </View>
+
           {mealAnalysis && Object.keys(mealAnalysis).length > 0 && (
-            <View style={styles.mealAnalysisContainer}>
-              <Text style={styles.mealAnalysisTitle}>Meal Analysis</Text>
-              <Text>Meal Time: {mealAnalysis.meal_time || "N/A"}</Text>
-              <Text>Total Calories: {mealAnalysis.total_calories}</Text>
-              <Text>Foods:</Text>
-              {mealAnalysis.foods.map((food, index) => (
-                <View key={index} style={styles.foodItem}>
-                  <Text>Item: {food.item}</Text>
-                  <Text>Quantity: {food.quantity}</Text>
-                  <Text>Calories per Portion: {food.calories}</Text>
-                  <Text>
-                    Estimated Total Calories: {food.estimated_total_calories}
-                  </Text>
-                </View>
-              ))}
-            </View>
+            <MealCard
+              name={mealAnalysis.name}
+              totalCalories={mealAnalysis.totalCalories}
+              transcription={mealAnalysis.transcription}
+              foods={mealAnalysis.foods}
+            />
           )}
           <TouchableOpacity
             style={{

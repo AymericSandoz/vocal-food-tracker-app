@@ -5,7 +5,6 @@ import upload from "../middleware/upload"; // Adjust the path as necessary
 
 const router = express.Router();
 
-console.log("upload", upload);
 // speech to meal
 router.post(
   "/speech-to-meal",

@@ -1,6 +1,7 @@
 import axios from "axios";
 
 export const textToMeal = async (req) => {
+  console.log("Requête reçue dans textToMeal:", req);
   try {
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
@@ -16,7 +17,7 @@ export const textToMeal = async (req) => {
             - Nom du repas ("meal_name"). Par exemple, "déjeuner", "dîner", "collation", etc. Mettre "null" si tu ne peux pas le déterminer.
             - Liste des aliments avec :
               - nom ("item"),
-              - quantité estimée ("quantity"),
+              - quantité estimée ("quantity"). Si aucune quantité n'est précisée, estime qu'il s'agit d'une portion standard.
               - calories par portion ("calories"), en indiquant l'unité de mesure.
               - calories totales estimées ("estimated_total_calories").`,
           },

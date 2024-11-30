@@ -50,6 +50,7 @@ exports.signup = async (req, res) => {
 
 // Connexion
 exports.login = async (req, res) => {
+  console.log("login");
   try {
     const { email, password } = req.body;
 
@@ -81,6 +82,7 @@ exports.login = async (req, res) => {
       token,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Erreur serveur, veuillez réessayer." });
   }
 };

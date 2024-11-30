@@ -1,4 +1,11 @@
+const { speechToText } = require("../services/speechToText");
+const { textToMeal } = require("../services/textToMeal");
+const { createMeal } = require("../services/createMeal");
+const { textToSport } = require("../services/textToSport");
+const { createSport } = require("../services/createSport");
+
 exports.speechToMeal = async (req, res) => {
+  console.log("speechToMeal");
   try {
     const transcriptionData = await speechToText(req);
     const mealAnalysis = await textToMeal(transcriptionData);

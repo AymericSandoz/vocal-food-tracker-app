@@ -2,8 +2,6 @@ const Meal = require("../models/meal");
 
 export const createMeal = async (data) => {
   const { transcriptionData, mealAnalysis } = data;
-  console.log("createMeal:", data);
-  console.log("foodItems:", mealAnalysis.foods);
 
   try {
     // Créer un nouvel objet Meal avec les informations fournies
@@ -24,7 +22,6 @@ export const createMeal = async (data) => {
     // Enregistrer le nouvel objet Meal dans la base de données
     await newMeal.save();
 
-    console.log("Meal saved successfully:", newMeal);
     return newMeal;
   } catch (error) {
     console.error("Error saving meal:", error);

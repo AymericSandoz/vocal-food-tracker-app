@@ -7,13 +7,11 @@ import { useSession } from "../functions/auth/ctx";
 
 const rootOrigin =
   Platform.OS === "android"
-    ? "192.168.140.115" // METTRE SON IP ICI ou 10.0.2.2 si émulateur(à confirmer)
+    ? "192.168.231.115" // METTRE SON IP ICI ou 10.0.2.2 si émulateur(à confirmer)
     : Device.isDevice
     ? process.env.LOCAL_DEV_IP || "localhost"
     : "localhost";
 const serverUrl = `http://${rootOrigin}:4000`;
-
-console.log("serverUrl:", serverUrl);
 
 const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -39,7 +37,6 @@ const SignUpScreen = ({ navigation }) => {
       });
 
       if (response.ok) {
-        console.log("about to sign in");
         signIn(email, password);
         router.replace("/");
       } else {
