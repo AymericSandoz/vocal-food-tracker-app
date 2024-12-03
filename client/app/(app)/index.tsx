@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Audio } from "expo-av";
-import { transcribeSpeech } from "@/functions/transcribeSpeech";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { recordSpeech } from "@/functions/recordSpeech";
 import useWebFocus from "@/hooks/useWebFocus";
@@ -17,6 +16,9 @@ import { useSession } from "@/functions/auth/ctx";
 import { speechTo } from "@/functions/speechTo";
 import { textTo } from "@/functions/textTo";
 import { MealCard } from "@/components/resultAnalysis/meal";
+import { SportCard } from "@/components/resultAnalysis/sport";
+import { Link } from "expo-router";
+import { Pressable } from "react-native";
 
 export default function HomeScreen() {
   const [isRecording, setIsRecording] = useState(false);
@@ -25,6 +27,15 @@ export default function HomeScreen() {
   const audioRecordingRef = useRef(new Audio.Recording());
   const webAudioPermissionsRef = useRef<MediaStream | null>(null);
   const [mealAnalysis, setMealAnalysis] = useState({});
+  const [sportAnalysis, setSportAnalysis] = useState<
+    {
+      _id: String;
+      sport: String;
+      caloriesBurned: Number;
+      transcription: String;
+      duration: String;
+    }[]
+  >([]);
   const { signOut, session } = useSession();
 
   useEffect(() => {
@@ -55,15 +66,19 @@ export default function HomeScreen() {
     );
   };
 
-  const stopRecording = async () => {
+  const stopRecording = async (
+    endpoint: "speech-to-meal" | "speech-to-sport"
+  ) => {
     setIsRecording(false);
     setIsTranscribing(true);
-
-    console.log("session", session);
     try {
-      const result = await transcribeSpeech(audioRecordingRef, session);
-
-      setMealAnalysis(result || {});
+      const result = await speechTo(audioRecordingRef, session, endpoint);
+      console.log("Result:", result);
+      if (endpoint === "speech-to-meal") {
+        setMealAnalysis(result || {});
+      } else {
+        setSportAnalysis(result || []);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -92,13 +107,24 @@ export default function HomeScreen() {
               foods={mealAnalysis.foods}
             />
           )}
+          {sportAnalysis &&
+            sportAnalysis.length > 0 &&
+            sportAnalysis.map((analysis) => (
+              <SportCard
+                key={analysis._id}
+                sport={analysis.sport}
+                caloriesBurned={analysis.caloriesBurned}
+                transcription={analysis.transcription}
+                duration={analysis.duration}
+              />
+            ))}
           <TouchableOpacity
             style={{
               ...styles.microphoneButton,
               opacity: isRecording || isTranscribing ? 0.5 : 1,
             }}
             onPressIn={startRecording}
-            onPressOut={stopRecording}
+            onPressOut={() => stopRecording("speech-to-meal")}
             disabled={isRecording || isTranscribing}
           >
             {isRecording ? (
@@ -107,6 +133,31 @@ export default function HomeScreen() {
               <FontAwesome name="microphone" size={40} color="white" />
             )}
           </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              ...styles.microphoneButton,
+              opacity: isRecording || isTranscribing ? 0.5 : 1,
+            }}
+            onPressIn={startRecording}
+            onPressOut={() => stopRecording("speech-to-sport")}
+            disabled={isRecording || isTranscribing}
+          >
+            {isRecording ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <FontAwesome name="microphone" size={40} color="white" />
+            )}
+          </TouchableOpacity>
+          <Link href="/(app)/TextInputSport" asChild>
+            <Pressable style={styles.pressableButton}>
+              <Text>Add sport</Text>
+            </Pressable>
+          </Link>
+          <Link href="/(app)/TextInputMeal" asChild>
+            <Pressable>
+              <Text>Add meal</Text>
+            </Pressable>
+          </Link>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -114,12 +165,12 @@ export default function HomeScreen() {
 }
 const styles = StyleSheet.create({
   mainScrollContainer: {
-    padding: 20,
+    padding: 0,
     height: "100%",
     width: "100%",
   },
   mainInnerContainer: {
-    gap: 75,
+    gap: 200,
     height: "100%",
     alignItems: "center",
     justifyContent: "center",
@@ -132,24 +183,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
-  transcriptionContainer: {
-    backgroundColor: "rgb(220,220,220)",
-    width: "100%",
-    height: 300,
-    padding: 20,
-    marginBottom: 20,
-    borderRadius: 5,
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-  },
-  transcribedText: {
-    fontSize: 20,
-    padding: 5,
-    color: "#000",
-    textAlign: "left",
-    width: "100%",
-  },
   microphoneButton: {
     backgroundColor: "red",
     width: 75,
@@ -159,19 +192,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  mealAnalysisContainer: {
-    marginTop: 20,
-    padding: 20,
-    backgroundColor: "rgb(240,240,240)",
+  pressableButton: {
+    backgroundColor: "blue",
+    padding: 10,
     borderRadius: 5,
-    width: "100%",
-  },
-  mealAnalysisTitle: {
-    fontSize: 25,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  foodItem: {
-    marginBottom: 10,
   },
 });

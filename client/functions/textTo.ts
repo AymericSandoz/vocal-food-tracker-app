@@ -1,25 +1,18 @@
-import * as Device from "expo-device";
-import { Platform } from "react-native";
+import { serverUrl } from "../utils/serverUrl";
 
 export const textTo = async (
     text: string,
+    session: string | null | undefined,
     endpoint: "text-to-meal" | "text-to-sport"
   ) => {
     try {
-      const rootOrigin =
-        Platform.OS === "android"
-          ? "192.168.231.115"
-          : Device.isDevice
-          ? process.env.LOCAL_DEV_IP || "localhost"
-          : "localhost";
-      const serverUrl = `http://${rootOrigin}:4000`;
-  
       if (!text.trim()) throw new Error("Text input cannot be empty");
   
       const response = await fetch(`${serverUrl}/${endpoint}/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session}`,
         },
         body: JSON.stringify({ text }),
       });

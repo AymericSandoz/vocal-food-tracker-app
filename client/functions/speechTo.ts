@@ -1,20 +1,13 @@
 import { MutableRefObject } from "react";
 import { Audio } from "expo-av";
-import * as Device from "expo-device";
-import { Platform } from "react-native";
+import { serverUrl } from "../utils/serverUrl";
 
 export const speechTo = async (
   audioRecordingRef: MutableRefObject<Audio.Recording>,
+  session: string | null | undefined,
   endpoint: "speech-to-meal" | "speech-to-sport"
 ) => {
   try {
-    const rootOrigin =
-      Platform.OS === "android"
-        ? "192.168.231.115"
-        : Device.isDevice
-        ? process.env.LOCAL_DEV_IP || "localhost"
-        : "localhost";
-    const serverUrl = `http://${rootOrigin}:4000`;
 
     const isPrepared = audioRecordingRef?.current?._canRecord;
     if (isPrepared) {
@@ -30,17 +23,18 @@ export const speechTo = async (
         name: "audio.m4a",
       });
 
+      console.log("Recording URI:", `${serverUrl}/${endpoint}/`);
       const response = await fetch(`${serverUrl}/${endpoint}/`, {
         method: "POST",
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${session}`,
         },
         body: formData,
       });
-
       return response.json();
     } else {
-      throw new Error("Recording must be prepared prior to unloading");
+      console.log("Status must be prepared to record audio");
     }
   } catch (error) {
     console.error(`Error in speechTo: ${endpoint}`, error);

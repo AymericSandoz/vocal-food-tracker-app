@@ -31,6 +31,7 @@ exports.textToMeal = async (req, res) => {
 
 exports.speechToSport = async (req, res) => {
   try {
+    console.log("speechToSport");
     const transcriptionData = await speechToText(req);
     const sportAnalysis = await textToSport(transcriptionData);
     const data = { transcriptionData, sportAnalysis };

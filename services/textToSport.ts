@@ -10,7 +10,7 @@ export const textToSport = async (req) => {
             {
               role: "system",
                 content: `Tu es une IA qui analyse les activités physiques. Rends ta réponse sous forme de JSON et dans la langue de l'utilisateur.
-                Retourne un JSON avec :
+                Retourne un JSON avec un tableau "sports" contenant plusiers objets avec les propriétés suivantes :
                 - Type d'activité physique ("sport"). Par exemple, "footing", "vélo", "natation", etc. Mettre "null" si tu ne peux pas le déterminer.
                 - Durée de l'activité ("duration"). Si pas de durée précisée, mettre "null".
                 - Calories brûlées ("calories_burned")`,
